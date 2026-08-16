@@ -1,0 +1,23 @@
+# .gitignore
+
+# Dependencias de Node (Frontend)
+node_modules/
+dist/
+build/
+
+# Entornos y binarios de Python (Core)
+__pycache__/
+venv/
+env/
+*.pyc
+
+# Binarios y compilaciones de C# (Auth)
+[Bb]in/
+[Oo]bj/
+
+# Bases de datos locales
+*.sqlite
+*.db
+
+# Variables de entorno
+.env
