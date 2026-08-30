@@ -27,9 +27,9 @@ const Navbar = () => {
 
             {/* Carrito y perfil*/}
             <div style={{display: 'flex', gap: '15px', alignItems: 'center'}}>
-                <Link to="/login" style={linkStyle}>
-                    Ingresar
-                </Link>
+                <Link to="/login" style={linkStyle}>Ingresar</Link>
+
+                <Link to="/perfil" style={linkStyle}>Mi Perfil</Link>
 
                 <Link to="/carrito" style={{
                     backgroundColor: '#d48c06',
