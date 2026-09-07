@@ -29,6 +29,8 @@ const Navbar = () => {
             <div style={{display: 'flex', gap: '15px', alignItems: 'center'}}>
                 <Link to="/login" style={linkStyle}>Ingresar</Link>
 
+                <Link to="/register" style={linkStyle}>Registrarse</Link>
+
                 <Link to="/perfil" style={linkStyle}>Mi Perfil</Link>
 
                 <Link to="/carrito" style={{

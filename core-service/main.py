@@ -5,10 +5,19 @@ import schemas
 from database import engine, SessionLocal
 from auth import get_current_user
 from datetime import datetime, timedelta
+from fastapi.middleware.cors import CORSMiddleware
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="RockStore Core API", version="1.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_db():
     db= SessionLocal()
@@ -52,7 +61,7 @@ def obtener_perfil_seguro(user_id: str = Depends(get_current_user)):
 
 @app.get("/api/profile/me", response_model=schemas.CustomerResponse)
 def get_my_profile(user_id: str = Depends(get_current_user), db: Session = Depends(get_db)):
-    customer = db.query(models.Customer).filter(models.Customer.user_id).first()
+    customer = db.query(models.Customer).filter(models.Customer.user_id == user_id).first()
 
     if not customer:
         customer = models.Customer(user_id=user_id)
@@ -168,7 +177,7 @@ def get_my_orders(user_id: str = Depends(get_current_user), db: Session = Depend
     if not customer:
         raise HTTPException(status_code=404, detail="Perfil no encontrado.")
 
-    return db.query(models.Order).filter(models.Order.customer_id == customer.id).order_by(models.Order.order_date.desc())
+    return db.query(models.Order).filter(models.Order.customer_id == customer.id).order_by(models.Order.order_date.desc()).all()
 
 @app.get("/api/orders/{order_id}/invoice")
 def generate_invoice(order_id: int, user_id: str = Depends(get_current_user), db: Session = Depends(get_db)):

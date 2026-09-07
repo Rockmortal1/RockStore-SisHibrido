@@ -6,6 +6,9 @@ import Products from './pages/Products';
 import Cart from './pages/Cart';
 import Profile from './pages/Profile';
 import AdminOrders from './pages/AdminOrders';
+import Register from './pages/Register';
+import ProtectedRoute from './components/ProtectedRoute';
+import { CartProvider } from './context/CartContext';
 
 //const Home = () => <h1 style={{color: 'white'}}>Pantalla de inicio</h1>;
 //const Products = () => <h1 style={{color: 'white'}}>Catalogo de Productos</h1>
@@ -16,22 +19,27 @@ const titleStyle = {color: '#F9FAFB', marginTop: '20px'};
 
 function App() {
   return (
-    <div style={{backgroundColor: '#030712', minHeight: '100vh', fontFamily: 'system-ui, sans-serif'}}>
-      {/*Aqui ira el Navbar*/}
-      <Navbar />
+    <CartProvider>
+      <div style={{backgroundColor: '#030712', minHeight: '100vh', fontFamily: 'system-ui, sans-serif'}}>
+        {/*Aqui ira el Navbar*/}
+        <Navbar />
 
-      <main style={{ padding: '30px'}}>
-        <Routes>
-          <Route path="/" element={<Home />} />
+        <main style={{ padding: '30px'}}>
+          <Routes>
+            <Route path="/" element={<Home />} />
 
-          <Route path="/login" element={<Login/>} />
-          <Route path="/productos" element={<Products />} />
-          <Route path="/carrito" element={<Cart />} />
-          <Route path="/admin/pedidos" element={<AdminOrders />} />
-          <Route path="/perfil" element={<Profile />} />
-        </Routes>
-      </main>
-    </div>
+            <Route path="/login" element={<Login/>} />
+            <Route path="/register" element={<Register/>} />
+            <Route path="/productos" element={<Products />} />
+
+            {/* Rutas protegidas */}
+            <Route path="/carrito" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+            <Route path="/admin/pedidos" element={<ProtectedRoute><AdminOrders /></ProtectedRoute>} />
+            <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          </Routes>
+        </main>
+      </div>
+    </CartProvider>
   );
 }
 

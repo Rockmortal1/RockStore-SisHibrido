@@ -1,55 +1,41 @@
 import { useState } from 'react';
-import axios from 'axios'; // Importación para hacer peticiones HTTP
-import { useNavigate, Link } from 'react-router-dom'; // Para cambiar de página
+import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 
-const Login = () => {
+const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // Estado para manejar errores
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); // Limpiar errores previos al intentar de nuevo
+    setError('');
 
     try {
-      // ¡Aquí está el puente hacia tu API en C#!
-      // Asegúrate de que '/api/auth/login' sea la ruta correcta de tu controlador
-      const response = await axios.post('http://localhost:5158/api/auth/login', {
+      // Petición a la ruta de registro de C#
+      await axios.post('http://localhost:5158/api/auth/register', {
         email: email,
         password: password
       });
 
-      // Si C# responde con éxito, guardamos el token JWT en el navegador
-      const token = response.data.token;
-      localStorage.setItem('jwt_token', token);
-      
-      console.log("¡Login exitoso! Token guardado.");
-      
-      // Enviamos al usuario directamente al catálogo
-      navigate('/productos');
+      console.log("¡Registro exitoso!");
+      // Si todo sale bien, lo mandamos al Login para que inicie sesión
+      navigate('/login');
 
     } catch (err) {
-      console.error("Error al iniciar sesión:", err);
-      setError('Credenciales incorrectas o problema de conexión con el servidor.');
+      console.error("Error al registrar:", err);
+      setError('Hubo un problema al crear la cuenta. Verifica que el servidor esté encendido.');
     }
   };
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
-      <div style={{
-        backgroundColor: '#111827',
-        padding: '40px',
-        borderRadius: '10px',
-        border: '1px solid #374151',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
+      <div style={{ backgroundColor: '#111827', padding: '40px', borderRadius: '10px', border: '1px solid #374151', width: '100%', maxWidth: '400px' }}>
         <h2 style={{ color: '#F9FAFB', textAlign: 'center', marginBottom: '30px' }}>
-          Iniciar Sesión
+          Crear Cuenta
         </h2>
 
-        {/* Muestra un cartel rojo si hay un error de login */}
         {error && (
           <div style={{ backgroundColor: '#ef4444', color: 'white', padding: '10px', borderRadius: '6px', marginBottom: '20px', fontSize: '0.9rem', textAlign: 'center' }}>
             {error}
@@ -63,10 +49,10 @@ const Login = () => {
             </label>
             <input 
               type="email" 
-              value={email}
+              value={email} 
               onChange={(e) => setEmail(e.target.value)}
-              style={inputStyle}
-              placeholder="tu@email.com"
+              style={inputStyle} 
+              placeholder="tu@email.com" 
               required
             />
           </div>
@@ -77,23 +63,24 @@ const Login = () => {
             </label>
             <input 
               type="password" 
-              value={password}
+              value={password} 
               onChange={(e) => setPassword(e.target.value)}
-              style={inputStyle}
-              placeholder="••••••••"
+              style={inputStyle} 
+              placeholder="••••••••" 
               required
             />
           </div>
 
           <button type="submit" style={buttonStyle}>
-            Entrar
+            Registrarme
           </button>
         </form>
-        <div style={{marginTop: '20px', textAlign: 'center'}}>
-            <span style={{color: '#9CA3AF', fontSize: '0.9rem'}}>¿No tienes cuenta? </span>
-            <Link to="/register" style={{color: '#d48c06', textDecoration: 'none', fontWeight: 'bold'}}>
-                Registrate aqui
-            </Link>
+
+        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          <span style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>¿Ya tienes cuenta? </span>
+          <Link to="/login" style={{ color: '#d48c06', textDecoration: 'none', fontWeight: 'bold' }}>
+            Ingresa aquí
+          </Link>
         </div>
       </div>
     </div>
@@ -110,4 +97,4 @@ const buttonStyle = {
   borderRadius: '6px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', marginTop: '10px'
 };
 
-export default Login;
+export default Register;
