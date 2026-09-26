@@ -14,7 +14,7 @@ const Register = () => {
 
     try {
       // Petición a la ruta de registro de C#
-      await axios.post('http://localhost:5158/api/auth/register', {
+      await axios.post(`${import.meta.env.VITE_AUTH_API_URL}/api/auth/register`, {
         email: email,
         password: password
       });

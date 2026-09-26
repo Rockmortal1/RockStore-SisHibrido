@@ -20,14 +20,14 @@ const Profile = () => {
         }
 
         // 2. Le pedimos a Python los datos, mostrándole la llave en la cabecera
-        const responsePerfil = await axios.get('http://localhost:8000/api/profile/me', {
+        const responsePerfil = await axios.get(`${import.meta.env.VITE_CORE_API_URL}/api/profile/me`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
         setPerfil(responsePerfil.data);
 
-        const responsePedidos = await axios.get('http://localhost:8000/api/orders/me', {
+        const responsePedidos = await axios.get(`${import.meta.env.VITE_CORE_API_URL}/api/orders/me`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

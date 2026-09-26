@@ -15,7 +15,7 @@ const Login = () => {
     try {
       // ¡Aquí está el puente hacia tu API en C#!
       // Asegúrate de que '/api/auth/login' sea la ruta correcta de tu controlador
-      const response = await axios.post('http://localhost:5158/api/auth/login', {
+      const response = await axios.post(`${import.meta.env.VITE_AUTH_API_URL}/api/auth/login`, {
         email: email,
         password: password
       });

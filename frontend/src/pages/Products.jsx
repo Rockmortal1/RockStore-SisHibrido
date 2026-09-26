@@ -13,7 +13,7 @@ const Products = () => {
     const obtenerProductos = async () => {
       try {
         // Asegúrate de que '/productos' coincida con la ruta real en tu main.py de Python
-        const response = await axios.get('http://localhost:8000/api/products'); 
+        const response = await axios.get(`${import.meta.env.VITE_CORE_API_URL}/api/products`); 
         setProductos(response.data);
         setCargando(false);
       } catch (err) {

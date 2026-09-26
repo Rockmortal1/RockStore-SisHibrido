@@ -16,7 +16,7 @@ const Cart = () => {
         const token = localStorage.getItem('jwt_token');
         if (!token) return;
 
-        const response = await axios.get('http://localhost:8000/api/profile/me', {
+        const response = await axios.get(`${import.meta.env.VITE_CORE_API_URL}/api/profile/me`, {
           headers: {Authorization: `Bearer ${token}`}
         });
 
@@ -76,7 +76,7 @@ const Cart = () => {
       };
 
       // 3. Disparamos la petición POST a Python para registrar la orden
-      await axios.post('http://localhost:8000/api/checkout', orderPayload, {
+      await axios.post(`${import.meta.env.VITE_CORE_API_URL}/api/checkout`, orderPayload, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -116,10 +116,42 @@ const Cart = () => {
     }
   };
 
-  const handleMercadoPagoCheckout = () => {
-    // Aquí luego llamaremos a la API de Python para generar el link real de pago.
-    // Por ahora, simulamos la redirección:
-    alert(`Redirigiendo a Mercado Pago para abonar un total de $${finalPayable.toLocaleString('es-AR')}... 🚀`);
+  const handleMercadoPagoCheckout = async () => {
+    try {
+      const token = localStorage.getItem('jwt_token');
+      if (!token) {
+        alert("Por favor, inicia sesión para continuar con el pago.");
+        return;
+      }
+
+      // 1. Armamos el paquete de datos
+      const orderPayload = {
+        items: cartItems.map(item => ({
+          product_id: item.id,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        use_cashback: useCashback,
+        total_amount: finalPayable
+      };
+
+      // 2. Guardamos la orden internamente en tu base de datos (igual que WhatsApp)
+      await axios.post(`${import.meta.env.VITE_CORE_API_URL}/api/checkout`, orderPayload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // 3. Le pedimos a Python el link oficial de Mercado Pago
+      const mpResponse = await axios.post(`${import.meta.env.VITE_CORE_API_URL}/api/pay/mercadopago`, orderPayload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // 4. Redirigimos al usuario a la pasarela de cobro
+      window.location.href = mpResponse.data.init_point;
+
+    } catch (error) {
+      console.error("Error al procesar el pago con Mercado Pago:", error);
+      alert("Hubo un problema al generar el link de pago. Revisa la consola.");
+    }
   };
 
   return (

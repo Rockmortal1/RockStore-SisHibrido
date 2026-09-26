@@ -9,6 +9,7 @@ import AdminOrders from './pages/AdminOrders';
 import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import { CartProvider } from './context/CartContext';
+import ChatBot from './components/ChatBot';
 
 //const Home = () => <h1 style={{color: 'white'}}>Pantalla de inicio</h1>;
 //const Products = () => <h1 style={{color: 'white'}}>Catalogo de Productos</h1>
@@ -38,6 +39,7 @@ function App() {
             <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           </Routes>
         </main>
+        <ChatBot/>
       </div>
     </CartProvider>
   );

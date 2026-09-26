@@ -1,8 +1,10 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
+import os
+from dotenv import load_dotenv
 
-SECRET_KEY = "RockStoreSuperSecretKeyParaDesarrollo2026jaja"
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITH = "HS256"
 ISSUER = "RockStoreAuthService"
 AUDIENCE = "RockStoreClients"

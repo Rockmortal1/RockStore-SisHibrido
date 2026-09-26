@@ -7,19 +7,19 @@ class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
+    name = Column(String(150), index=True)
     description = Column(Text)
     price = Column(Float)
     discount_percentage = Column(Integer, default=0)
     stock = Column(Integer, default=0)
-    category = Column(String, index=True)
+    category = Column(String(150), index=True)
     image_url = Column(String)
 
 class Customer(Base):
     __tablename__ = "customers"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, unique=True, index=True) #Clave de enlace con el JWT de C#
+    user_id = Column(String(150), unique=True, index=True) #Clave de enlace con el JWT de C#
     phone_number = Column(String)
     total_purchased = Column(Float, default=0.0)
     cashback_points = Column(Integer, default=0)

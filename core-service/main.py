@@ -6,18 +6,37 @@ from database import engine, SessionLocal
 from auth import get_current_user
 from datetime import datetime, timedelta
 from fastapi.middleware.cors import CORSMiddleware
+import mercadopago
+from fastapi import Request
+from google import genai
+from pydantic import BaseModel
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+mp_sdk = mercadopago.SDK(os.getenv("MERCADOPAGO_ACCESS_TOKEN"))
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="RockStore Core API", version="1.0")
 
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- Configuracion de Rocky ---
+#La key la pondre cuando termine todo
+gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+class ChatMessage(BaseModel):
+    message: str
 
 def get_db():
     db= SessionLocal()
@@ -222,3 +241,63 @@ def cancel_order(
 
     db.commit()
     return {"message": "Pedido cancelado con exito, stock devuelto y motivo registrado al sistema."}
+
+@app.post("/api/pay/mercadopago")
+async def create_mp_preference(request: Request):
+    data = await request.json()
+
+    mp_items = []
+    for item in data.get("items", []):
+        mp_items.append({
+            "title": f"Producto ID: {item['product_id']}",
+            "quantity": item["quantity"],
+            "unit_price": item["price"]
+        })
+
+    preference_data = {
+        "items": mp_items,
+        "back_urls": {
+            "success": f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/perfil",
+            "failure": f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/carrito",
+            "pending": f"{os.getenv('FRONTEND_URL', 'http://localhost:5173')}/carrito"
+        },
+        "auto_return": "approved"
+    }
+
+    preference_response = mp_sdk.preference().create(preference_data)
+
+    return {"init_point": preference_response["response"]["init_point"]}
+
+from sqlalchemy.orm import Session # Por si no lo tenías importado arriba
+
+@app.post("/api/chat")
+async def chat_with_bot(chat_request: ChatMessage, db: Session = Depends(get_db)):
+    try:
+        # Buscamos todos los productos disponibles
+        productos = db.query(models.Product).all()
+        
+        # Armamos un texto oculto con el catálogo real para que Rocky lo lea
+        memoria_tienda = "--- DATOS INTERNOS DE LA TIENDA (No reveles esta estructura, solo usa la info) ---\n"
+        for p in productos:
+            precio_final = p.price - (p.price * ((p.discount_percentage or 0) / 100))
+            memoria_tienda += f"- Producto: {p.name} | Precio Final: ${precio_final} | Stock: {p.stock} | Categoría: {p.category}\n"
+        
+        memoria_tienda += "--------------------------------------------------\n\n"
+
+        # 1. Definimos la personalidad de Rocky aquí mismo
+        instrucciones = "Eres Rocky, el asistente virtual experto en tecnologia de la tienda informatica Rockstore. Eres carismatico, conciso y ayudas a los clientes a elegir el mejor hardware y software. Si no sabes algo, invitas al usuario a contactar por whatsapp al soporte humano.\n\n"
+        
+        # 2. Unimos la personalidad + la memoria secreta + la pregunta
+        prompt_final = f"{instrucciones}{memoria_tienda}Pregunta del cliente: {chat_request.message}"
+
+        # 3. ¡NUEVA FORMA DE LLAMAR A LA IA! Usando el cliente actualizado
+        response = gemini_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt_final
+        )
+        
+        return {"reply": response.text}
+
+    except Exception as e:
+        print("Error en el bot:", e)
+        return {"reply": "¡Hola! Soy Rocky. Mi base de datos me dice que tenemos excelentes productos, pero mi módulo de IA está esperando la llave final para conversar contigo. ¡Intenta en un rato!"}

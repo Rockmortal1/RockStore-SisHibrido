@@ -12,11 +12,11 @@ builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 
 //Esto es la configuracion de la base de datos de SQLite
-//Indicamos la ceacion del archivo local llamado auth.db
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=auth.db"));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=auth.db";
 
-// Aca vamos a meter la coneccion con SQLite
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(connectionString));
+
 
 //Aca va a ir la validacaion en JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -38,6 +38,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy=>
     {
+        var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
+
         policy.WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
             .AllowAnyMethod();
