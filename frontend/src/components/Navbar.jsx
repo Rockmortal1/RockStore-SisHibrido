@@ -4,13 +4,13 @@ const Navbar = () => {
     const navigate = useNavigate();
     
     // Verificamos si hay sesión activa
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('jwt_token');
     
-    // Preparando tu futura lógica de roles (asumiendo que guardes el rol al hacer login)
+    // Preparando tu futura lógica de roles para siguiente etapa
     const userRole = localStorage.getItem('role'); 
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem('jwt_token');
         localStorage.removeItem('role');
         navigate('/login');
     };
@@ -37,7 +37,7 @@ const Navbar = () => {
                 <Link to="/" style={linkStyle}>Inicio</Link>
                 <Link to="/productos" style={linkStyle}>Catalogos</Link>
                 
-                {/* El Panel Admin solo aparece si el rol es Owner */}
+                {/* El Panel Admin solo aparece si el rol es Owner cuando configuremos esto */}
                 {userRole === 'Owner' && (
                     <Link to="/admin/pedidos" style={linkStyle}>Panel Admin</Link>
                 )}
