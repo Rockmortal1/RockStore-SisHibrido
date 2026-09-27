@@ -15,20 +15,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-mp_sdk = mercadopago.SDK(os.getenv("MERCADOPAGO_ACCESS_TOKEN"))
+mp_sdk = mercadopago.SDK(os.getenv("MERCADOPAGO_ACCESS_TOKEN", "TEST-dummy"))
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="RockStore Core API", version="1.0")
 
-from fastapi.middleware.cors import CORSMiddleware
-
-
-FRONTEND_URL = os.getenv("https://rockstore-sishibrido.netlify.app", "FRONTEND_URL")
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL,"http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://rockstore-sishibrido.netlify.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,7 +34,7 @@ app.add_middleware(
 
 # --- Configuracion de Rocky ---
 #La key la pondre cuando termine todo
-gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY", "dummy_key"))
 
 class ChatMessage(BaseModel):
     message: str
@@ -143,7 +141,7 @@ def process_checkout(
             "unit_price": final_unit_price
         })
 
-    cashback_used = 0.0
+        cashback_used = 0.0
     if checkout_data.use_cashback and customer.cashback_points > 0:
         if customer.cashback_points >= total_amount:
             cashback_used = total_amount
@@ -270,8 +268,6 @@ async def create_mp_preference(request: Request):
     preference_response = mp_sdk.preference().create(preference_data)
 
     return {"init_point": preference_response["response"]["init_point"]}
-
-from sqlalchemy.orm import Session # Por si no lo tenia importado arriba
 
 @app.post("/api/chat")
 async def chat_with_bot(chat_request: ChatMessage, db: Session = Depends(get_db)):
