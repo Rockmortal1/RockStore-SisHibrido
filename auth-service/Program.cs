@@ -55,4 +55,6 @@ app.UseAuthorization();
 // 3. Controladores
 app.MapControllers();
 
+app.MapGet("/", () => "Auth API Online - Status: 200 OK");
+
 app.Run();
