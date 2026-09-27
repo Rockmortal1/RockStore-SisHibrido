@@ -278,7 +278,7 @@ async def create_mp_preference(request: Request):
 
     return {"init_point": preference_response["response"]["init_point"]}
 
-from sqlalchemy.orm import Session # Por si no lo tenías importado arriba
+from sqlalchemy.orm import Session # Por si no lo tenia importado arriba
 
 @app.post("/api/chat")
 async def chat_with_bot(chat_request: ChatMessage, db: Session = Depends(get_db)):
@@ -300,7 +300,7 @@ async def chat_with_bot(chat_request: ChatMessage, db: Session = Depends(get_db)
         # 2. Unimos la personalidad + la memoria secreta + la pregunta
         prompt_final = f"{instrucciones}{memoria_tienda}Pregunta del cliente: {chat_request.message}"
 
-        # 3. ¡NUEVA FORMA DE LLAMAR A LA IA! Usando el cliente actualizado
+        # 3. Llamamos a la IA usando el cliente actualizado
         response = gemini_client.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt_final
