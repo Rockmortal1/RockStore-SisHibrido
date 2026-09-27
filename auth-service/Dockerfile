@@ -1,5 +1,5 @@
 #Etapa 1: La contruccion
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 #Copiar el archivo de proyecto y restaurar dependencias
@@ -11,10 +11,12 @@ COPY . .
 RUN dotnet publish "auth-service.csproj" -c Release -o /app/publish
 
 #Etapa 2: Mandamos todo a ejecutar
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
 #Exponemos el puerto
-EXPOSE 80
+ENV ASPNETCORE_URLS=http://0.0.0.0:10000
+EXPOSE 10000
+
 ENTRYPOINT [ "dotnet", "auth-service.dll" ]
