@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using auth_service.Data;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,16 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -54,7 +65,9 @@ if (app.Environment.IsDevelopment())
     //app.UseSwaggerUI();
 }
 
-app.UseAuthentication(); //Lo habilitare cuando configure el JWT
+app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
 
 app.UseHttpsRedirection();
 
