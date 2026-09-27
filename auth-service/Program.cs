@@ -7,19 +7,16 @@ using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Esto es la configuracion de Servicios o la "Dependency Injection"
+// Configuración de Servicios
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
 
-//Esto es la configuracion de la base de datos de SQLite
+// Configuración de la base de datos Neon (PostgreSQL)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=auth.db";
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-
-//Aca va a ir la validacaion en JWT
+// Validación de JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer (options =>
     {
@@ -35,46 +32,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp", policy=>
-    {
-        var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
-
-        policy.WithOrigins("http://localhost:5173")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
-
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins("http://localhost:5173")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    //app.UseSwagger();
-    //app.UseSwaggerUI();
-}
-
+// 1. CORS siempre debe ser la puerta de entrada absoluta
 app.UseCors("AllowFrontend");
 
+// 2. Seguridad
 app.UseAuthentication();
-
-app.UseHttpsRedirection();
-
-app.UseCors("AllowReactApp");
-
 app.UseAuthorization();
 
+// 3. Controladores
 app.MapControllers();
 
 app.Run();
