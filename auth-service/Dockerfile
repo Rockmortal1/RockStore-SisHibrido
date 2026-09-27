@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 #Copiar el archivo de proyecto y restaurar dependencias
-COPY ["auth-service-csproj", "./"]
+COPY ["auth-service.csproj", "./"]
 RUN dotnet restore "auth-service.csproj"
 
 #copiar el resto del codigo y compilar
